@@ -3,6 +3,7 @@ import * as XLSX from 'xlsx';
 
 export const Home = () => {
   const [fileData, setFileData] = useState(null);
+  const [summary, setSummary] = useState(null);
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -17,26 +18,35 @@ export const Home = () => {
 
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
-        
+
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
         const filteredData = jsonData.slice(1).filter(row => {
-          const category = row[0];
-          const item = row[1];
-          const amount = row[2];
+          const detail = row[0];
+          const postingDate = row[1];
+          const description = row[2];
+          const amount = row[3];
+          const type = row[4];
+          const balance = row[5];
   
           // Return only rows that have valid category, item, and amount
-          return category && item && !isNaN(parseFloat(amount));
+          return detail && postingDate && !isNaN(parseFloat(amount));
         });
   
         const mappedData = filteredData.map(row => {
-          const category = row[0];
-          const item = row[1];
-          const amount = parseFloat(row[2]);
+          const detail = row[0];
+          const postingDate = new Date(row[1]).toISOString();
+          const description = row[2];
+          const amount = Math.abs(parseFloat(row[3]));
+          const type = row[4];
+          const balance = parseFloat(row[5]);
   
           return {
-            Category: category,
-            Item: item,
-            Amount: amount
+            Detail: detail,
+            PostingDate: postingDate,
+            Description: description,
+            Amount: amount,
+            Type: type,
+            Balance: balance
           };
         });
   
@@ -64,6 +74,8 @@ export const Home = () => {
   
       if (response.ok) {
         console.log('Upload successful:', result);
+        setSummary(result.summary); // Set the summary from the API response
+
       } else {
         console.error('Upload failed:', result);
       }
@@ -89,12 +101,22 @@ export const Home = () => {
         onChange={handleFileUpload}
       />
 
-      {fileData && (
+      {/* {fileData && (
         <div>
           <h4>Uploaded Budget Data:</h4>
           <pre>{JSON.stringify(fileData, null, 2)}</pre>
         </div>
+      )} */}
+
+{summary && (
+        <div>
+          <h4>Budget Summary:</h4>
+          <p>Total Money Spent: {summary.totalMoneySpent}</p>
+          <p>Highest Transaction Spent: {summary.highestTransactionSpent} for {summary.highestDescription} on {summary.postingDate}</p>
+          <p>Lowest Transaction Spent: {summary.lowestTransactionSpent} for {summary.lowestDescription} on {summary.postingDate}</p>
+        </div>
       )}
+
     </div>
   );
 };

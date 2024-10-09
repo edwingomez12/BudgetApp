@@ -29,7 +29,11 @@ public class BudgetController : ControllerBase
         }
         var response = _budgetAppService.GetTotalMoneySpent(data);
         // Process the uploaded data (e.g., save to database)
-        return Ok(new { message = "Data uploaded successfully.", receivedData = data });
+        return Ok(new 
+        {
+             message = "Data uploaded successfully.", 
+             summary = response 
+        });
     }
 
 

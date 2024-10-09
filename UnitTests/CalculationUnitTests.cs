@@ -1,6 +1,8 @@
 using System;
 using Xunit;
-using BudgetApp.Calculations;
+using BudgetApp;
+using BudgetApp.Models;
+using FluentAssertions;
 
 public class CalculationTests
 {
@@ -8,15 +10,27 @@ public class CalculationTests
     public void CalculateTotalTes()
     {
         //Arrange
-        List<decimal> Totals = new List<decimal>();
-        Totals.Add(299.34m);
-        Totals.Add(345.2m);
-        Totals.Add(124.00m);
-        decimal expected = 768.54m;
+        List<Expenses> Totals = new List<Expenses>();
+        Totals.Add(new Expenses() {
+            Amount = 123.24m,
+            Detail = "DEBIT"
+        });
+        Totals.Add(new Expenses()
+        {
+            Amount = 234.2m,
+            Detail = "DEBIT"
+        });
+        Totals.Add(new Expenses()
+        {
+            Amount = 48,
+            Detail = "DEBIT"
+        });
+
+        decimal expected = 405.44m;
         //Act
         var total = Calculations.AddTotal(Totals);
 
         //Assert
-        Assert.Equal(expected,total);
+        total.Should().Be(expected);
     }
 }

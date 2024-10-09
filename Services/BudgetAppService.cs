@@ -1,6 +1,5 @@
 using System;
 using BudgetApp.Models;
-
 namespace BudgetApp;
 
 public class BudgetAppService: IBudgetAppService
@@ -11,12 +10,11 @@ public class BudgetAppService: IBudgetAppService
         
         if(expenses.Capacity != 0 ) 
         {
-            foreach(var expense in expenses)
-            {
-                budgetSumary.TotalMoneySpent += expense.Amount;
-            }
-            budgetSumary.HighestTransactionSpent = expenses.Max(expense => expense.Amount);
-            budgetSumary.LowestTransactionSpent = expenses.Min(expense => expense.Amount);
+            budgetSumary.TotalMoneySpent = Calculations.AddTotal(expenses);
+            budgetSumary.HighestTransactionSpent = Calculations.GetLargestValue(expenses);
+            budgetSumary.HighestDescription = Calculations.GetDescription(expenses, budgetSumary.HighestTransactionSpent);
+            budgetSumary.LowestTransactionSpent = Calculations.GetMinValue(expenses);
+            budgetSumary.LowestDescription = Calculations.GetDescription(expenses, budgetSumary.LowestTransactionSpent);
         }
 
         return budgetSumary;
