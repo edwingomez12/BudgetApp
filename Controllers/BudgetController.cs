@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using BudgetApp.Models;
 
 namespace BudgetApp.Controllers;
 
@@ -7,7 +8,12 @@ namespace BudgetApp.Controllers;
 [Route("[controller]")]
 public class BudgetController : ControllerBase
 {
+    IBudgetAppService _budgetAppService;
 
+    public BudgetController(IBudgetAppService budgetAppService)
+    {
+        _budgetAppService = budgetAppService;
+    }
     [HttpGet]
     public IActionResult Get()
     {
@@ -15,13 +21,13 @@ public class BudgetController : ControllerBase
     }
 
     [HttpPost("upload")]
-    public IActionResult UploadBudgetData([FromBody] List<List<object>> data)
+    public IActionResult UploadBudgetData([FromBody] List<Expenses> data)
     {
         if (data == null || !data.Any())
         {
             return BadRequest("No data was provided.");
         }
-
+        var response = _budgetAppService.GetTotalMoneySpent(data);
         // Process the uploaded data (e.g., save to database)
         return Ok(new { message = "Data uploaded successfully.", receivedData = data });
     }

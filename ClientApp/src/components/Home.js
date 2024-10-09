@@ -17,12 +17,33 @@ export const Home = () => {
 
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
-
+        
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        setFileData(jsonData);
-
-        // Send data to the backend API
-        sendFileDataToAPI(jsonData);
+        const filteredData = jsonData.slice(1).filter(row => {
+          const category = row[0];
+          const item = row[1];
+          const amount = row[2];
+  
+          // Return only rows that have valid category, item, and amount
+          return category && item && !isNaN(parseFloat(amount));
+        });
+  
+        const mappedData = filteredData.map(row => {
+          const category = row[0];
+          const item = row[1];
+          const amount = parseFloat(row[2]);
+  
+          return {
+            Category: category,
+            Item: item,
+            Amount: amount
+          };
+        });
+  
+        setFileData(mappedData);
+  
+        // Send the filtered and mapped data to the backend API
+        sendFileDataToAPI(mappedData);
       };
 
       reader.readAsBinaryString(file);

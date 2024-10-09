@@ -1,3 +1,4 @@
+using BudgetApp;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddScoped<IBudgetAppService,BudgetAppService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
