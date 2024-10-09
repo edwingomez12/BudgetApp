@@ -1,27 +1,48 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
+
+
 
 var app = builder.Build();
+app.UseCors("AllowAll");
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+// Enable middleware to serve generated Swagger as a JSON endpoint.
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+    c.RoutePrefix = default; // Serve Swagger UI at the app's root
+});
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
 app.UseRouting();
+app.UseAuthorization();
+app.MapControllers(); // Ensure this maps your controllers
 
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller}/{action=Index}/{id?}");
-
-app.MapFallbackToFile("index.html");
-
+app.MapGet("/routes", (IEnumerable<EndpointDataSource> endpointSources) =>
+{
+    return Results.Ok(endpointSources.SelectMany(es => es.Endpoints));
+});
 app.Run();
+
