@@ -19,14 +19,15 @@ export const Home = () => {
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
 
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+        
         const filteredData = jsonData.slice(1).filter(row => {
           const detail = row[0];
           const postingDate = row[1];
           const description = row[2];
           const amount = row[3];
           const type = row[4];
-          const balance = row[5];
+          const balance = parseFloat(row[5]) || 0; 
   
           // Return only rows that have valid category, item, and amount
           return detail && postingDate && !isNaN(parseFloat(amount));
@@ -35,10 +36,11 @@ export const Home = () => {
         const mappedData = filteredData.map(row => {
           const detail = row[0];
           const postingDate = new Date(row[1]).toISOString();
+          
           const description = row[2];
           const amount = Math.abs(parseFloat(row[3]));
           const type = row[4];
-          const balance = parseFloat(row[5]);
+          const balance = parseFloat(row[5]) || 0; 
   
           return {
             Detail: detail,
@@ -74,6 +76,8 @@ export const Home = () => {
   
       if (response.ok) {
         console.log('Upload successful:', result);
+        //result.lowestPostingDate = new Date(result.lowestPostingDate).toISOString();
+        //result.highestPostingDate = new Date(result.highestPostingDate).toISOString();
         setSummary(result.summary); // Set the summary from the API response
 
       } else {
@@ -83,12 +87,6 @@ export const Home = () => {
       console.error('Error uploading data:', error);
     }
   };
-
-  async function TestGreet() {
-    const response = await fetch('budgetupload');
-    const data = await response.json();
-  }
-
 
   
 
@@ -110,10 +108,20 @@ export const Home = () => {
 
 {summary && (
         <div>
-          <h4>Budget Summary:</h4>
-          <p>Total Money Spent: {summary.totalMoneySpent}</p>
-          <p>Highest Transaction Spent: {summary.highestTransactionSpent} for {summary.highestDescription} on {summary.postingDate}</p>
-          <p>Lowest Transaction Spent: {summary.lowestTransactionSpent} for {summary.lowestDescription} on {summary.postingDate}</p>
+          <h4>Budget Summary by Month:</h4>
+          <ul>
+            {Object.keys(summary).map((key) => (
+              <li key={key}>
+                <h5>{key} (Year-Month)</h5>
+                <p>Monthly Income: {summary[key].monthlyIncome}</p>
+                <p>Total Money Spent: {summary[key].totalMoneySpent}</p>
+                <p>Highest Transaction: {summary[key].highestTransactionSpent} for {summary[key].highestDescription} on {summary[key].highestPostingDate}</p>
+                <p>Second Highest Transaction: {summary[key].secondHighestTransaction} for {summary[key].secondHighestDescription} on {summary[key].highestPostingDate}</p>
+                <p>Third Highest Transaction: {summary[key].thirdHighestTransaction} for {summary[key].thirdHighestDescription} on {summary[key].highestPostingDate}</p>
+                <p>Lowest Transaction: {summary[key].lowestTransactionSpent} for {summary[key].lowestDescription} on {summary[key].lowestPostingDate}</p>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

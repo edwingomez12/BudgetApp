@@ -13,17 +13,17 @@ public class CalculationTests
         List<Expenses> Totals = new List<Expenses>();
         Totals.Add(new Expenses() {
             Amount = 123.24m,
-            Detail = "DEBIT"
+            Detail = Detail.DEBIT
         });
         Totals.Add(new Expenses()
         {
             Amount = 234.2m,
-            Detail = "DEBIT"
+            Detail = Detail.DEBIT
         });
         Totals.Add(new Expenses()
         {
             Amount = 48,
-            Detail = "DEBIT"
+            Detail = Detail.DEBIT
         });
 
         decimal expected = 405.44m;

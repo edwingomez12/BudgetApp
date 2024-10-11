@@ -28,11 +28,16 @@ public class BudgetController : ControllerBase
             return BadRequest("No data was provided.");
         }
         var response = _budgetAppService.GetTotalMoneySpent(data);
+
+        var formattedResponse = response.ToDictionary(
+        key => $"{key.Key.Year}-{key.Key.Month:00}", // Format year-month as string
+        value => value.Value
+    );
         // Process the uploaded data (e.g., save to database)
         return Ok(new 
         {
              message = "Data uploaded successfully.", 
-             summary = response 
+             summary = formattedResponse 
         });
     }
 

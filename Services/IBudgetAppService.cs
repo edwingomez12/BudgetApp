@@ -4,5 +4,5 @@ namespace BudgetApp;
 
 public interface IBudgetAppService
 {
-    public BudgetSumaryDto GetTotalMoneySpent(List<Expenses> expenses);
+    public Dictionary<DateGroup, BudgetSumaryDto> GetTotalMoneySpent(List<Expenses> expenses);
 }
