@@ -19,13 +19,13 @@ public static class Calculations
 
     public static decimal GetLargestValue(List<Expenses> list)
     {
-        return list.Where(expense => expense.Detail == Detail.DEBIT)
+        return list.Where(expense => expense.Detail == Detail.DEBIT && !expense.Description.Contains("Online Transfer to SAV"))
         .Max(expense => expense.Amount);
     }
 
      public static decimal GetSecondLargestValue(List<Expenses> list)
     {
-        return list.Where(expense => expense.Detail == Detail.DEBIT)
+        return list.Where(expense => expense.Detail == Detail.DEBIT && !expense.Description.Contains("Online Transfer to SAV"))
             .OrderByDescending(expense => expense.Amount)
             .Skip(1)
             .FirstOrDefault()?.Amount ?? 0; // If no second largest, return 0
@@ -34,7 +34,7 @@ public static class Calculations
     // New method to get the third largest value
     public static decimal GetThirdLargestValue(List<Expenses> list)
     {
-        return list.Where(expense => expense.Detail == Detail.DEBIT)
+        return list.Where(expense => expense.Detail == Detail.DEBIT && !expense.Description.Contains("Online Transfer to SAV"))
             .OrderByDescending(expense => expense.Amount)
             .Skip(2)
             .FirstOrDefault()?.Amount ?? 0; // If no third largest, return 0

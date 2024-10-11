@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Add Bootstrap for easy styling
 
 export const Home = () => {
   const [fileData, setFileData] = useState(null);
@@ -29,14 +30,12 @@ export const Home = () => {
           const type = row[4];
           const balance = parseFloat(row[5]) || 0; 
   
-          // Return only rows that have valid category, item, and amount
           return detail && postingDate && !isNaN(parseFloat(amount));
         });
   
         const mappedData = filteredData.map(row => {
           const detail = row[0];
           const postingDate = new Date(row[1]).toISOString();
-          
           const description = row[2];
           const amount = Math.abs(parseFloat(row[3]));
           const type = row[4];
@@ -53,8 +52,6 @@ export const Home = () => {
         });
   
         setFileData(mappedData);
-  
-        // Send the filtered and mapped data to the backend API
         sendFileDataToAPI(mappedData);
       };
 
@@ -64,22 +61,19 @@ export const Home = () => {
 
   const sendFileDataToAPI = async (data) => {
     try {
-      const response = await fetch('/budget/upload', { // Relative URL
+      const response = await fetch('/budget/upload', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data), // Send data as JSON
+        body: JSON.stringify(data),
       });
   
       const result = await response.json();
   
       if (response.ok) {
         console.log('Upload successful:', result);
-        //result.lowestPostingDate = new Date(result.lowestPostingDate).toISOString();
-        //result.highestPostingDate = new Date(result.highestPostingDate).toISOString();
-        setSummary(result.summary); // Set the summary from the API response
-
+        setSummary(result.summary);
       } else {
         console.error('Upload failed:', result);
       }
@@ -88,43 +82,40 @@ export const Home = () => {
     }
   };
 
-  
-
   return (
-    <div>
-      <h3>Upload Excel File</h3>
-      <input
-        type="file"
-        accept=".xlsx, .xls"
-        onChange={handleFileUpload}
-      />
+    <div className="container mt-5">
+      <div className="card shadow-sm p-4">
+        <h3 className="mb-3">Upload Excel File</h3>
+        <input
+          type="file"
+          className="form-control"
+          accept=".xlsx, .xls"
+          onChange={handleFileUpload}
+        />
+      </div>
 
-      {/* {fileData && (
-        <div>
-          <h4>Uploaded Budget Data:</h4>
-          <pre>{JSON.stringify(fileData, null, 2)}</pre>
-        </div>
-      )} */}
-
-{summary && (
-        <div>
-          <h4>Budget Summary by Month:</h4>
-          <ul>
+      {summary && (
+        <div className="mt-5">
+          <h4 className="text-center mb-4">Budget Summary by Month</h4>
+          <div className="row">
             {Object.keys(summary).map((key) => (
-              <li key={key}>
-                <h5>{key} (Year-Month)</h5>
-                <p>Monthly Income: {summary[key].monthlyIncome}</p>
-                <p>Total Money Spent: {summary[key].totalMoneySpent}</p>
-                <p>Highest Transaction: {summary[key].highestTransactionSpent} for {summary[key].highestDescription} on {summary[key].highestPostingDate}</p>
-                <p>Second Highest Transaction: {summary[key].secondHighestTransaction} for {summary[key].secondHighestDescription} on {summary[key].highestPostingDate}</p>
-                <p>Third Highest Transaction: {summary[key].thirdHighestTransaction} for {summary[key].thirdHighestDescription} on {summary[key].highestPostingDate}</p>
-                <p>Lowest Transaction: {summary[key].lowestTransactionSpent} for {summary[key].lowestDescription} on {summary[key].lowestPostingDate}</p>
-              </li>
+              <div key={key} className="col-md-6 mb-4">
+                <div className="card h-100 shadow-sm">
+                  <div className="card-body">
+                    <h5 className="card-title text-primary">{key} (Year-Month)</h5>
+                    <p><strong>Monthly Income:</strong> ${summary[key].monthlyIncome.toFixed(2)}</p>
+                    <p><strong>Total Money Spent:</strong> ${summary[key].totalMoneySpent.toFixed(2)}</p>
+                    <p><strong>Highest Transaction:</strong> ${summary[key].highestTransactionSpent.toFixed(2)} for {summary[key].highestDescription} on {new Date(summary[key].highestPostingDate).toLocaleDateString()}</p>
+                    <p><strong>Second Highest Transaction:</strong> ${summary[key].secondHighestTransaction.toFixed(2)} for {summary[key].secondHighestDescription} on {new Date(summary[key].secondHighestPostingDate).toLocaleDateString()}</p>
+                    <p><strong>Third Highest Transaction:</strong> ${summary[key].thirdHighestTransaction.toFixed(2)} for {summary[key].thirdHighestDescription} on {new Date(summary[key].thirdHighestPostingDate).toLocaleDateString()}</p>
+                    <p><strong>Lowest Transaction:</strong> ${summary[key].lowestTransactionSpent.toFixed(2)} for {summary[key].lowestDescription} on {new Date(summary[key].lowestPostingDate).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       )}
-
     </div>
   );
 };
