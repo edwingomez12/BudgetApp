@@ -11,14 +11,6 @@ public class BudgetAppService: IBudgetAppService
         Dictionary<DateGroup, BudgetSumaryDto> budgetSummary = new Dictionary<DateGroup, BudgetSumaryDto>();
         if(expenses.Capacity != 0 ) 
         {
-            // budgetSumary.TotalMoneySpent = Calculations.AddTotal(expenses);
-            // budgetSumary.HighestTransactionSpent = Calculations.GetLargestValue(expenses);
-            // budgetSumary.HighestDescription = Calculations.GetDescription(expenses, budgetSumary.HighestTransactionSpent);
-            // budgetSumary.LowestTransactionSpent = Calculations.GetMinValue(expenses);
-            // budgetSumary.LowestDescription = Calculations.GetDescription(expenses, budgetSumary.LowestTransactionSpent);
-            // budgetSumary.HighestPostingDate = Calculations.GetPostingDate(expenses, budgetSumary.HighestTransactionSpent);
-            // budgetSumary.LowestPostingDate = Calculations.GetPostingDate(expenses, budgetSumary.LowestTransactionSpent);
-            // budgetSumary.MonthlyIncome = Calculations.GetMonthlyIncome(expenses);
             var organizedTransactions = OrganizeTransactions(expenses);
             foreach(var group in organizedTransactions)
             {
@@ -31,6 +23,7 @@ public class BudgetAppService: IBudgetAppService
                 var highestDescription = Calculations.GetDescription(group.Value, highestTransactionSpent);
                 var lowestTransaction =  Calculations.GetMinValue(group.Value);
                 var lowestDescription = Calculations.GetDescription(group.Value, lowestTransaction);
+                var creditCardsTotal = Calculations.GetCreditCardPayments(group.Value);
                 var monthlyIncome = Calculations.GetMonthlyIncome(group.Value);
                 BudgetSumaryDto summary = new()
                 {
@@ -43,6 +36,7 @@ public class BudgetAppService: IBudgetAppService
                     SecondHighestDescription = secondHighestDescription,
                     ThirdHighestTransaction = thirdHighestTransaction,
                     ThirdHighestDescription = thirdHighestDescription,
+                    CreditCardTotal = creditCardsTotal,
                     MonthlyIncome = monthlyIncome
                 };
                 budgetSummary.Add(group.Key, summary);

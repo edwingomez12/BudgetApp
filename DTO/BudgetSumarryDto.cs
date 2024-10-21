@@ -23,5 +23,7 @@ public class BudgetSumaryDto
 
     public string month { get; set; }
 
+    public decimal CreditCardTotal {get; set;}
+
 
 }

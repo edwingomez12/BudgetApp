@@ -82,6 +82,17 @@ export const Home = () => {
     }
   };
 
+  // Sorting the keys by year and month in descending order
+  const getSortedKeys = (summary) => {
+    return Object.keys(summary).sort((a, b) => {
+      const [yearA, monthA] = a.split("-").map(Number);
+      const [yearB, monthB] = b.split("-").map(Number);
+      
+      // First sort by year in descending order, then by month
+      return yearB - yearA || monthB - monthA;
+    });
+  };
+
   return (
     <div className="container mt-5">
       <div className="card shadow-sm p-4">
@@ -98,17 +109,18 @@ export const Home = () => {
         <div className="mt-5">
           <h4 className="text-center mb-4">Budget Summary by Month</h4>
           <div className="row">
-            {Object.keys(summary).map((key) => (
+          {getSortedKeys(summary).map((key) => (
               <div key={key} className="col-md-6 mb-4">
                 <div className="card h-100 shadow-sm">
                   <div className="card-body">
                     <h5 className="card-title text-primary">{key} (Year-Month)</h5>
                     <p><strong>Monthly Income:</strong> ${summary[key].monthlyIncome.toFixed(2)}</p>
                     <p><strong>Total Money Spent:</strong> ${summary[key].totalMoneySpent.toFixed(2)}</p>
-                    <p><strong>Highest Transaction:</strong> ${summary[key].highestTransactionSpent.toFixed(2)} for {summary[key].highestDescription} on {new Date(summary[key].highestPostingDate).toLocaleDateString()}</p>
-                    <p><strong>Second Highest Transaction:</strong> ${summary[key].secondHighestTransaction.toFixed(2)} for {summary[key].secondHighestDescription} on {new Date(summary[key].secondHighestPostingDate).toLocaleDateString()}</p>
-                    <p><strong>Third Highest Transaction:</strong> ${summary[key].thirdHighestTransaction.toFixed(2)} for {summary[key].thirdHighestDescription} on {new Date(summary[key].thirdHighestPostingDate).toLocaleDateString()}</p>
-                    <p><strong>Lowest Transaction:</strong> ${summary[key].lowestTransactionSpent.toFixed(2)} for {summary[key].lowestDescription} on {new Date(summary[key].lowestPostingDate).toLocaleDateString()}</p>
+                    <p><strong>Highest Transaction:</strong> ${summary[key].highestTransactionSpent.toFixed(2)} for {summary[key].highestDescription}</p>
+                    <p><strong>Second Highest Transaction:</strong> ${summary[key].secondHighestTransaction.toFixed(2)} for {summary[key].secondHighestDescription}</p>
+                    <p><strong>Third Highest Transaction:</strong> ${summary[key].thirdHighestTransaction.toFixed(2)} for {summary[key].thirdHighestDescription}</p>
+                    <p><strong>Lowest Transaction:</strong> ${summary[key].lowestTransactionSpent.toFixed(2)} for {summary[key].lowestDescription}</p>
+                    <p><strong>Credit Card Payments:</strong> ${summary[key].creditCardTotal.toFixed(2)}</p>
                   </div>
                 </div>
               </div>
