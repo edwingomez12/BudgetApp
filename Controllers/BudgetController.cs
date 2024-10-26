@@ -37,9 +37,9 @@ public class BudgetController : ControllerBase
         return Ok(new 
         {
              message = "Data uploaded successfully.", 
-             summary = formattedResponse 
+             summary = formattedResponse,
+             transactions = data
         });
     }
-
-
+    
 }
