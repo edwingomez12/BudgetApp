@@ -39,7 +39,7 @@ app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-    c.RoutePrefix = default; // Serve Swagger UI at the app's root
+    c.RoutePrefix = "swagger"; // Serve Swagger UI at the app's root
 });
 
 app.UseRouting();
@@ -49,6 +49,12 @@ app.MapControllers(); // Ensure this maps your controllers
 app.MapGet("/routes", (IEnumerable<EndpointDataSource> endpointSources) =>
 {
     return Results.Ok(endpointSources.SelectMany(es => es.Endpoints));
+});
+
+app.MapFallback(async context =>
+{
+    context.Response.ContentType = "text/html";
+    await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath, "index.html"));
 });
 app.Run();
 
