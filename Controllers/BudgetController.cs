@@ -6,14 +6,10 @@ namespace BudgetApp.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class BudgetController : ControllerBase
+public class BudgetController(IBudgetAppService budgetAppService) : ControllerBase
 {
-    IBudgetAppService _budgetAppService;
+    IBudgetAppService _budgetAppService => budgetAppService;
 
-    public BudgetController(IBudgetAppService budgetAppService)
-    {
-        _budgetAppService = budgetAppService;
-    }
     [HttpGet]
     public IActionResult Get()
     {

@@ -1,60 +1,43 @@
 using BudgetApp;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-
-
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IBudgetAppService, BudgetAppService>();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
 });
 
-builder.Services.AddScoped<IBudgetAppService,BudgetAppService>();
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll",
-        builder =>
-        {
-            builder.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
-        });
-});
-
-
-
 var app = builder.Build();
-app.UseCors("AllowAll");
 
-// Enable middleware to serve generated Swagger as a JSON endpoint.
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+// Swagger (only enable in Dev unless you want it public)
+if (app.Environment.IsDevelopment())
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-    c.RoutePrefix = "swagger"; // Serve Swagger UI at the app's root
-});
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        c.RoutePrefix = "swagger"; // Swagger served at /swagger
+    });
+}
 
+// Serve React build from wwwroot
+app.UseDefaultFiles();  // finds index.html
+app.UseStaticFiles();   // serves CSS, JS, etc.
+
+// API routing
 app.UseRouting();
-app.UseAuthorization();
-app.MapControllers(); // Ensure this maps your controllers
+app.MapControllers();
 
-app.MapGet("/routes", (IEnumerable<EndpointDataSource> endpointSources) =>
-{
-    return Results.Ok(endpointSources.SelectMany(es => es.Endpoints));
-});
-
+// SPA Fallback (for React Router support)
 app.MapFallback(async context =>
 {
     context.Response.ContentType = "text/html";
     await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath, "index.html"));
 });
-app.Run();
 
+app.Run();
